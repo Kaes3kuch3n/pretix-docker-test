@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+
+  pretix:
+    image: pretix/standalone:stable
+    ports:
+      - "8081:80"
+    networks:
+      - app-net
+    volumes:
+      - ./pretix:/etc/pretix
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    networks:
+      - app-net
+    volumes:
+      - ./nginx/site.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - pretix
+
+  db:
+    image: postgres:alpine
+    networks:
+      - app-net
+    environment:
+      POSTGRES_PASSWORD: example
+
+  redis:
+    image: redis:alpine
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
